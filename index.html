@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width" />
+        <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *" />
+
+        <title>Babylon.js sample code</title>
+        <!-- Babylon.js -->
+        <!--<script src="https://www.babylonjs.com/hand.minified-1.2.js"></script>
+        <script src="https://preview.babylonjs.com/cannon.js"></script>
+        <script src="https://preview.babylonjs.com/oimo.js"></script>-->
+        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="lib/jquery-1.11.2.js"></script>
+        <script src="lib/digi_rep02.js"></script>
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                /*height: 100%;*/
+                /*height: 800px;*/
+                margin: 0;
+                padding: 0;
+                touch-action: none;
+            }
+            
+            .btnStart {
+              position: absolute;
+              left: 10px;
+              top: 15px;
+              visibility: hidden;
+            }
+        </style>
+    </head>
+<body>
+    <div class="btnStart">
+    </div>
+    <div id="canvasZone">
+        <canvas id="renderCanvas"></canvas>
+    </div>
+    <script>
+        var canvas = document.getElementById("renderCanvas");
+        var engine = new BABYLON.Engine(canvas, true);
+        var scene;
+        var player1, player1a, gk, sphere, upm = 4, fps = 30;
+        var action_lists = [], a_l_o = {};
+        var skeleton, skeletona, p_mesh = {}, act_to_start = 'act 1';
+        var action_list = [], act_init, /*p_init_pos_list = [], p_init_pos,*/ 
+            act_idx, INIT = 0, WAIT = 1, OVER = 2;
+                
+        function gp(w, h,pos, rot) {
+            var material_white = new BABYLON.StandardMaterial("materiala",scene);
+            material_white.diffuseColor = BABYLON.Color3.White();
+            material_white.alpha = 0.5;
+            var GoalPlane = BABYLON.MeshBuilder.CreatePlane("myPlane", 
+                                   {width: w/*6*/, height: h/*9*/, sideOrientation:BABYLON.Mesh.DOUBLESIDE}, scene);
+            GoalPlane.material = material_white;
+            GoalPlane.rotation = rot;
+            GoalPlane.position = pos;
+        }
+        
+        var createScene = function () {        
+            
+            var goal_offset_z = 144, goal_offset_y = -3.5;
+            // This creates a basic Babylon Scene object (non-mesh)
+            var scene = new BABYLON.Scene(engine);
+        
+            // This creates and positions a free camera (non-mesh)
+            //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(35*upm, 40*upm, -50), scene);
+            //var camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(170, 40, 60), scene);
+        
+            // This targets the camera to scene origin
+            //camera.setTarget(new BABYLON.Vector3(88, 0, 90)/*BABYLON.Vector3.Zero()*/);
+            
+            var camera = new BABYLON.ArcRotateCamera("ArcRotateCamera", 0,  0, 10, new BABYLON.Vector3(0, 0, 116), scene);
+            camera.setPosition(new BABYLON.Vector3(190, 40, 60));
+        
+            // This attaches the camera to the canvas
+            camera.attachControl(canvas, true);
+            
+            //scene.activeCamera.beta +=  0.2;
+             //scene.activeCamera.alpha -=  1.5;
+            //camera.noRotationConstraint=true;
+            //camera.rotation.z=Math.PI/180;
+        
+            // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
+            var light = new BABYLON.HemisphericLight("light1", new BABYLON.Vector3(0, 1, 0), scene);
+        
+            // Default intensity is 1. Let's dim the light a small amount
+            light.intensity = 0.7;
+            //var light = new BABYLON.PointLight("pointLight",new BABYLON.Vector3(0,10,10),scene);
+            //light.diffuse = new BABYLON.Color3(1,0,0);
+            
+            var material1 = new BABYLON.StandardMaterial("material1",scene);
+            //material1.diffuseColor = BABYLON.Color3.Green();
+            material1.diffuseTexture = new BABYLON.Texture("assets/campo_1.jpg", scene);
+            
+            sphere = BABYLON.Mesh.CreateSphere("sphere1", 12, 1, scene);
+        
+            // Move the sphere upward 1/2 its height
+            //sphere.position = new BABYLON.Vector3(100, -4.5, 35);
+            sphere.position.y = -4.5;
+            
+            BABYLON.SceneLoader.ImportMesh("", "assets/", "goal_mesh_01.babylon", scene, 
+                    function (newMeshes, particleSystems, skeletons) {
+                    	newMeshes[0].scaling = new BABYLON.Vector3(2.5, 2.5, 2.5);
+                    	newMeshes[0].position.z = goal_offset_z+1;
+                    	newMeshes[0].position.y = goal_offset_y+1;
+            });            
+            
+            BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_skel_text_action_pcwork.babylon", scene,
+              function (newMeshes, particleSystems, skeletons) {
+                skeleton = skeletons[0];                
+                var material2 = new BABYLON.StandardMaterial("material2",scene);                
+            	//material2.diffuseColor = BABYLON.Color3.Blue();
+            	material2.diffuseTexture = new BABYLON.Texture("assets/figure_rigged_run_text01.png", scene);
+                newMeshes[0].material = material2;                               
+                player1 = newMeshes[0];
+                player1.visibility = false;
+                /*player1a = player1.clone(val.mesh);
+                player1a.skeleton = skeleton.clone("clonedSkeleton");
+                materiala.diffuseColor = BABYLON.Color3.Red();
+                player1a.material = materiala;
+                player1a.visibility = true;*/
+                //console.log(player1.name);
+                //if($.isEmptyObject(a_l_o)) {
+                getActions(/*newMeshes[0], skeletons[0]*/); //sincronizza importMesh con $.getJSON
+                //}
+            });
+            
+            BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_skel_text_action_pcwork.babylon", scene,
+              function (newMeshes, particleSystems, skeletons) {
+                skeletona = skeletons[0]; 
+                var materiala = new BABYLON.StandardMaterial("materiala",scene);
+                //materiala.diffuseColor = BABYLON.Color3.Red();
+                materiala.diffuseTexture = new BABYLON.Texture("assets/figure_rigged_run_text02.png", scene);
+                newMeshes[0].material = materiala;
+                player1a = newMeshes[0];
+                player1a.visibility = false;
+            });  
+
+            BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_gk_skel_text_action_pcwork.babylon", scene,
+              function (newMeshes, particleSystems, skeletons) {
+                //skeletona = skeletons[0]; 
+                var materiala = new BABYLON.StandardMaterial("materiala",scene);
+                materiala.diffuseColor = BABYLON.Color3.Red();
+                //materiala.diffuseTexture = new BABYLON.Texture("assets/figure_rigged_run_text02.png", scene);
+                newMeshes[0].material = materiala;
+                gk = newMeshes[0];
+                gk.position = new BABYLON.Vector3(0, 0, 140);
+                //gk.visibility = false;
+            });
+            
+            gp(6, 12, new BABYLON.Vector3(16, 1, 148), new BABYLON.Vector3(0, Math.PI/2, 0));
+            gp(6, 12, new BABYLON.Vector3(-16, 1, 148), new BABYLON.Vector3(0, Math.PI/2, 0));
+            gp(32, 6, new BABYLON.Vector3(13-13, 7, 148), new BABYLON.Vector3(Math.PI/2, 0, 0));
+            gp(32, 12, new BABYLON.Vector3(0, 1, 151), BABYLON.Vector3.Zero());
+            
+            var ground = BABYLON.Mesh.CreateGround("ground1", 80*upm, 60*upm, 2, scene);
+            ground.material = material1;
+            ground.position.y = -5;
+            ground.rotation = new BABYLON.Vector3(0, -Math.PI/2, 0);            
+
+            scene.onPointerDown = function (evt, pickResult) {
+		//lookAt(box, pickResult.pickedPoint);
+		console.log(pickResult.pickedPoint);
+	    };
+	    
+            return scene;
+        };
+        
+        scene = createScene();
+        engine.runRenderLoop(function () {
+            scene.render();
+        });
+        // Resize
+        window.addEventListener("resize", function () {
+            engine.resize();
+        });        
+                
+    </script>
+  </body>
+</html> 
