@@ -1,7 +1,0 @@
-{"NA1 SHA0":
-{"p0_0":{"id":-1, "type":"", "mesh":"player1", "to":"114,0,144", "f":-1, "beg":"", "state":"MAIN"},
-"p0_1":{"id":-1, "type":"", "mesh":"player2", "to":"-30,0,94", "f":-1, "beg":"", "state":"CLONE"},
-"a0_1":{"id":1, "type":"passdr", "mesh":"player1", "to":"-6,-4.5,120", "f":30, "beg":"2","state":0, "dev":"-23,-4.5,134"},
-"a0_2":{"id":2, "type":"run", "mesh":"player2", "to":"-23,0,130", "f":30, "beg":"3","state":-1},
-"a0_3":{"id":3, "type":"passsciv", "mesh":"player2", "to":"b", "f":30, "beg":"","state":-1},
-"a0_4":{"id":4, "type":"passr", "mesh":"player2", "to":"-14,-4.5,150", "f":30, "beg":"","state":-1}}}
