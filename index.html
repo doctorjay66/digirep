@@ -9,10 +9,14 @@
         <!-- Babylon.js -->
         <!--<script src="https://www.babylonjs.com/hand.minified-1.2.js"></script>
         <script src="https://preview.babylonjs.com/cannon.js"></script>
-        <script src="https://preview.babylonjs.com/oimo.js"></script>-->
-        <script src="https://preview.babylonjs.com/babylon.js"></script>
+        <script src="https://preview.babylonjs.com/oimo.js"></script>
+        <script src="https://preview.babylonjs.com/babylon.js"></script>-->
+        <script src="lib/babylon.js"></script>
         <script src="lib/jquery-1.11.2.js"></script>
-        <script src="lib/digi_rep02.js"></script>
+        <script src="lib/underscore.js"></script>
+        <script src="lib/parse_ins_act.js"></script>
+        <script src="lib/set_action.js"></script>
+        <script src="lib/digi_rep04g.js"></script>
         <style>
             html, body {
                 overflow: hidden;
@@ -50,11 +54,160 @@
         var engine = new BABYLON.Engine(canvas, true);
         var scene;
         var player1, player1a, gk, sphere, upm = 4, fps = 30;
-        var action_lists = [], a_l_o = {};
+        //var action_lists = [], a_l_o = {};
         var skeleton, skeletona, p_mesh = {}, act_to_start = 'act 1';
-        var action_list = [], act_init, /*p_init_pos_list = [], p_init_pos,*/ 
-            act_idx, INIT = 0, WAIT = 1, OVER = 2;
-                
+        var action_list = [], act_init, SAVE=0, SAVE_RESP=1, SAVE_FOOT=2, SAVE_FOOT_SN=3, SAVE_ENDUP=4,
+            act_idx, INIT = 0, WAIT = 1, OVER = 2, PLAIN=0,CURVE=1, REB=2, DROP=3, INI_ACT='i',
+            zone_l_inc = 40*upm/24, zone_w_inc = 60*upm/16, zone_w_ini = -60*upm/2,
+            goal_right_lower_corner = new BABYLON.Vector3(-15, -4, 148),
+            goal_left_lower_corner = new BABYLON.Vector3(14, -4, 150),
+            goal_zone= {"grlc":goal_right_lower_corner,"gllc":goal_left_lower_corner};
+            /*mid_cent = new BABYLON.Vector3(0, 0, zone_l_inc),
+            tq_cent = new BABYLON.Vector3(0, 0, zone_l_inc*2),
+            tqcbm = new BABYLON.Vector3(0, 0, zone_l_inc*2+zone_l_inc/2),
+            tq_cent_m = new BABYLON.Vector3(0, 0, zone_l_inc*3),
+            tqcam = new BABYLON.Vector3(0, 0, zone_l_inc*3+zone_l_inc/2),
+            down_cent = new BABYLON.Vector3(0, 0, zone_l_inc*4), //inizio fondo campo centr.
+            down_cent_m = new BABYLON.Vector3(0, 0, zone_l_inc*4+zone_l_inc/2), //meta fondo campo centr.
+            dec = new BABYLON.Vector3(0, 0, zone_l_inc*5), //fine fondo centr.
+            
+            mid_sider = new BABYLON.Vector3(zone_w_inc*3, 0, zone_l_inc),
+            mid_sidel = new BABYLON.Vector3(-zone_w_inc*3, 0, zone_l_inc),
+            mid_sider_e = new BABYLON.Vector3(zone_w_inc*3+zone_w_inc/2, 0, zone_l_inc),
+            mid_sidel_e = new BABYLON.Vector3(-zone_w_inc*3-zone_w_inc/2, 0, zone_l_inc),
+                        
+            tq_side1r = new BABYLON.Vector3(zone_w_inc, 0, zone_l_inc*2),
+            tq_side2r = new BABYLON.Vector3(zone_w_inc*2, 0, zone_l_inc*2),
+            tq_side3r = new BABYLON.Vector3(zone_w_inc*3, 0, zone_l_inc*2),
+            tq_side4r = new BABYLON.Vector3(zone_w_inc*3+zone_w_inc/2, 0, zone_l_inc*2),
+            tq_sidel = new BABYLON.Vector3(-zone_w_inc*3, 0, zone_l_inc*2),
+            tq_sider_e = new BABYLON.Vector3(zone_w_inc*3+zone_w_inc/2, 0, zone_l_inc*2),
+            tq_sidel_e = new BABYLON.Vector3(-zone_w_inc*3-zone_w_inc/2, 0, zone_l_inc*2),
+                                    
+            tq_side1r_m = new BABYLON.Vector3(zone_w_inc, 0, zone_l_inc*3),
+            tq_side2r_m = new BABYLON.Vector3(zone_w_inc*2, 0, zone_l_inc*3),
+            tq_side3r_m = new BABYLON.Vector3(zone_w_inc*3, 0, zone_l_inc*3),
+            tq_side4r_m = new BABYLON.Vector3(zone_w_inc*3+zone_w_inc/2, 0, zone_l_inc*3),
+            
+            
+            dca = new BABYLON.Vector3(zone_w_inc/2, 0, zone_l_inc*4),
+            dcb = new BABYLON.Vector3(-zone_w_inc/2, 0, zone_l_inc*4),
+            down_cent_l = new BABYLON.Vector3(0, -5, zone_l_inc*4), //inizio fondo campo centr. low 
+            ds1r = new BABYLON.Vector3(zone_w_inc, 0, zone_l_inc*4),
+            dsa1r = new BABYLON.Vector3(zone_w_inc+zone_w_inc/2, 0, zone_l_inc*4), //down sn after 1r
+            ds2r = new BABYLON.Vector3(zone_w_inc*2, 0, zone_l_inc*4),
+            dsa2r = new BABYLON.Vector3(zone_w_inc*2+zone_w_inc/2, 0, zone_l_inc*4),
+            ds3r = new BABYLON.Vector3(zone_w_inc*3, 0, zone_l_inc*4),
+            ds4r = new BABYLON.Vector3(zone_w_inc*3+zone_w_inc/2, 0, zone_l_inc*4),
+            dsb1l = new BABYLON.Vector3(-zone_w_inc-zone_w_inc/2, 0, zone_l_inc*4),
+            ds1l = new BABYLON.Vector3(-zone_w_inc, 0, zone_l_inc*4),            
+            dsb2l = new BABYLON.Vector3(-zone_w_inc*2-zone_w_inc/2, 0, zone_l_inc*4),
+            ds2l = new BABYLON.Vector3(-zone_w_inc*2, 0, zone_l_inc*4),
+            ds3l = new BABYLON.Vector3(-zone_w_inc*3, 0, zone_l_inc*4),
+            ds4l = new BABYLON.Vector3(-zone_w_inc*3-zone_w_inc/2, 0, zone_l_inc*4),
+            
+            
+            dcma = new BABYLON.Vector3(zone_w_inc/2, 0, zone_l_inc*4+zone_l_inc/2),
+            ds1mr = new BABYLON.Vector3(zone_w_inc, 0, zone_l_inc*4+zone_l_inc/2),
+            dsa1mr = new BABYLON.Vector3(zone_w_inc+zone_w_inc/2, 0, zone_l_inc*4+zone_l_inc/2),
+            ds2mr = new BABYLON.Vector3(zone_w_inc*2, 0, zone_l_inc*4+zone_l_inc/2),
+            dsa2mr = new BABYLON.Vector3(zone_w_inc*2+zone_w_inc/2, 0, zone_l_inc*4+zone_l_inc/2),
+            ds3mr = new BABYLON.Vector3(zone_w_inc*3, 0, zone_l_inc*4+zone_l_inc/2),
+            ds4mr = new BABYLON.Vector3(zone_w_inc*3+zone_w_inc/2, 0, zone_l_inc*4+zone_l_inc/2),
+            ds1ml = new BABYLON.Vector3(-zone_w_inc, 0, zone_l_inc*4+zone_l_inc/2),
+            ds2ml = new BABYLON.Vector3(-zone_w_inc*2, 0, zone_l_inc*4+zone_l_inc/2),
+            ds3ml = new BABYLON.Vector3(-zone_w_inc*3, 0, zone_l_inc*4+zone_l_inc/2),
+            ds4ml = new BABYLON.Vector3(-zone_w_inc*3-zone_w_inc/2, 0, zone_l_inc*4+zone_l_inc/2),
+            dsm = new BABYLON.Vector3(down_cent_m.x + zone_w_inc, 0, down_cent_m.z),
+            down_cent_m_h = new BABYLON.Vector3(0, 6, zone_l_inc*4+zone_l_inc/2), //meta fondo campo centr. hight
+            down_cent_m_ui = new BABYLON.Vector3(down_cent_m.x, 4, down_cent_m.z),
+            down_cent_m_g = new BABYLON.Vector3(down_cent_m.x, -5, down_cent_m.z), //meta' fondo campo centr. ground
+            
+            down_sider_m = new BABYLON.Vector3(zone_w_inc*3, 0, zone_l_inc*4+zone_l_inc/2),
+            down_e_sider = new BABYLON.Vector3(zone_w_inc*3, 0, zone_l_inc*5), //fine fondo campo lato ds
+            desl = new BABYLON.Vector3(-zone_w_inc*3, 0, zone_l_inc*5), //fine fondo campo lato sn
+            desr = new BABYLON.Vector3(zone_w_inc*3, 0, zone_l_inc*5),
+            desre = new BABYLON.Vector3(zone_w_inc*3+zone_w_inc/2, 0, zone_l_inc*5), //fine fondo campo lato ds esterno
+            desle = new BABYLON.Vector3(-zone_w_inc*3-zone_w_inc/2, 0, zone_l_inc*5), //fine fondo campo lato sn esterno       
+            vrar = new BABYLON.Vector3(54, 0, 104); //vertice area destra
+            vral = new BABYLON.Vector3(-vrar.x, 0, vrar.z); //vertice area sn.
+            
+            cr = new BABYLON.Vector3(zone_w_inc*4-zone_w_inc/4, 0, zone_l_inc*5+zone_l_inc/2.5), //angolo destro
+            cl = new BABYLON.Vector3(-zone_w_inc*4+zone_w_inc/4, 0, zone_l_inc*5+zone_l_inc/2.5), //angolo sin.             
+            goal_center = new BABYLON.Vector3(0, 0, 150),
+            
+        var field_zone = {"tqc":tq_cent,
+                          "tqcbm":tqcbm,
+                          "tqs1r":tq_side1r,
+                          "tqs2r":tq_side2r,
+                          "tqs3r":tq_side3r,
+                          "tqs4r":tq_side4r,                          
+                          "tsre":tq_sider_e,
+                          "tsl":tq_sidel,
+                          "tsle":tq_sidel_e,
+                          "tqcm":tq_cent_m,
+                          "tqcam":tqcam,
+                          
+                          "tqs1rm":tq_side1r_m,
+                          "tqs2rm":tq_side2r_m,
+                          "tqs3rm":tq_side3r_m,
+                          "tqs4rm":tq_side4r_m,
+                          "mc":mid_cent,
+                          "msr":mid_sider,
+                          "msle":mid_sidel_e,
+                          "msre":mid_sider_e,                          
+                          "dec":dec,
+                          "dc":down_cent,
+                          "dca":dca,
+                          "dcl":down_cent_l,
+                          "ds1r":ds1r,
+                          "dsa1r":dsa1r,
+                          "ds2r":ds2r,
+                          "dsa2r":dsa2r,
+                          "ds3r":ds3r,
+                          "ds4r":ds4r,
+                          "dcb":dcb,
+                          "dsb1l":dsb1l,
+                          "ds1l":ds1l,
+                          "dsb2l":dsb2l,
+                          "ds2l":ds2l,
+                          "ds3l":ds3l,
+                          "ds4l":ds4l,
+                          "down_sider_m":down_sider_m,
+                          "down_e_sider":down_e_sider,
+                          "desl":desl,
+                          "desr":desr,
+                          "desre":desre,
+                          "desle":desle,
+                          "dcm":down_cent_m,
+                          "dcma":dcma,
+                          //"dcmh":down_cent_m_h,
+                          //"dcmu":down_cent_m_ui,
+                          //"dcmg":down_cent_m_g,
+                          "ds1mr":ds1mr,
+                          "dsa1mr":dsa1mr,
+                          "ds2mr":ds2mr,
+                          "dsa2mr":dsa2mr,
+                          "ds3mr":ds3mr,
+                          "ds4mr":ds4mr,
+                          "ds1ml":ds1ml,
+                          "ds2ml":ds2ml,
+                          "vrar":vrar,
+                          "vral":vral,
+                          "cr":cr,
+                          "cl":cl,
+                          "gc":goal_center,
+                          "grlc":goal_right_lower_corner};*/
+        var field_zone_m = [24]; 
+        //var fzl = [16];
+        for(var i=0;i<24;i++) {          
+          var fzl = [16];
+          for(var j=0;j<16;j++) {
+            fzl[j] = new BABYLON.Vector3(zone_w_ini + zone_w_inc*j, 0, zone_l_inc*i);
+          }
+          field_zone_m[i] = fzl;
+        }
+        //console.log(field_zone_m);
         function gp(w, h,pos, rot) {
             var material_white = new BABYLON.StandardMaterial("materiala",scene);
             material_white.diffuseColor = BABYLON.Color3.White();
@@ -115,15 +268,17 @@
                     	newMeshes[0].position.y = goal_offset_y+1;
             });            
             
-            BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_skel_text_action_pcwork.babylon", scene,
+            BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_skel_text_action_pcwork3.babylon", scene,
               function (newMeshes, particleSystems, skeletons) {
                 skeleton = skeletons[0];                
                 var material2 = new BABYLON.StandardMaterial("material2",scene);                
             	//material2.diffuseColor = BABYLON.Color3.Blue();
             	material2.diffuseTexture = new BABYLON.Texture("assets/figure_rigged_run_text01.png", scene);
                 newMeshes[0].material = material2;                               
-                player1 = newMeshes[0];
-                player1.visibility = false;
+                player1 = newMeshes[0];  
+                //player1.position = field_zone_m[15][12];              
+                //skeleton.bones[17].rotate(BABYLON.Axis.X, Math.PI/2);
+                //player1.visibility = false;
                 /*player1a = player1.clone(val.mesh);
                 player1a.skeleton = skeleton.clone("clonedSkeleton");
                 materiala.diffuseColor = BABYLON.Color3.Red();
@@ -135,12 +290,13 @@
                 //}
             });
             
-            BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_skel_text_action_pcwork.babylon", scene,
+            BABYLON.SceneLoader.ImportMesh("", "assets/", "figure_rigged_run_skel_text_action_pcwork3.babylon", scene,
               function (newMeshes, particleSystems, skeletons) {
                 skeletona = skeletons[0]; 
+                console.log(skeletona); //bone[17] gamba dx
                 var materiala = new BABYLON.StandardMaterial("materiala",scene);
                 //materiala.diffuseColor = BABYLON.Color3.Red();
-                materiala.diffuseTexture = new BABYLON.Texture("assets/figure_rigged_run_text02.png", scene);
+                materiala.diffuseTexture = new BABYLON.Texture("assets/la.png", scene);
                 newMeshes[0].material = materiala;
                 player1a = newMeshes[0];
                 player1a.visibility = false;
@@ -154,7 +310,7 @@
                 //materiala.diffuseTexture = new BABYLON.Texture("assets/figure_rigged_run_text02.png", scene);
                 newMeshes[0].material = materiala;
                 gk = newMeshes[0];
-                gk.position = new BABYLON.Vector3(0, 0, 140);
+                gk.position = new BABYLON.Vector3(0, 0, 136);
                 //gk.visibility = false;
             });
             
