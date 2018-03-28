@@ -1,0 +1,23 @@
+gol LAZ0 BO1
+pos p1i 12,5
+pos p2 16,5
+pos p1a 16,9
+pos p3 16,10
+shtri p1 sav 2
+sftl gk 20,7g 3,4,5
+run p2 20,7 6
+run p1a 18,9 -1
+run p3 18,10 -1
+shtr p2 23,8 -1
+gol LAZ1 BO1
+pos p1ai 10,5
+pos p2a 15,7
+pos p1 18,8
+pos p2 16,7
+pasri p1a 17,5g 8
+run p2a 17,5 9,10
+run p1 20,5 -1
+rnb p2a 20,5 11
+rnb p2a 19,7 12
+shtr p2a gllc 13
+savl gk null -1
