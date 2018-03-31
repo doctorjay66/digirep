@@ -6,4 +6,11 @@ pos p2a 16,6
 pasri p1 16,5g 2
 shtl p2 grlc 3
 savr gk null -1
-
+gol BO1 RO1
+pos p1ai 17,5
+pos p2a 19,7
+rnbi p1a 22,6 5
+pasr p1a 20,7u 6
+run p2a 20,7 7
+hds p2a gllc 8
+sftl gk null -1
