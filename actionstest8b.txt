@@ -1,10 +1,9 @@
-gol int1 alt0
-pos p1ai 11,5
-pos p2a 13,4
-pos p3a 16,8
-pos p1 16,7
-pasri p1a 21,4b 2
-run p2a 21,4 3
-brs p2a 11,5 4
-run p3a 18,8 -1
+gol BO1 RO0
+pos p1i 15,11
+pos p2 15,5
+pos p1a 16,10
+pos p2a 16,6
+pasri p1 16,5g 2
+shtl p2 grlc 3
+savr gk null -1
 
