@@ -1,16 +1,23 @@
 gol BO1 RO0
-pos p1i 15,11
-pos p2 15,5
-pos p1a 16,10
-pos p2a 16,6
-pasri p1 16,5g 2
-shtl p2 grlc 3
+pos p1i 17,11
+pos p2 18,8
+pos p3 14,8
+pos p1a 18,10
+pos p2a 18,6
+pos p3a 18,7
+pasri p1 18,8g 2
+pasr p2 14,8g 3
+shtr p3 grlc 4
 savr gk null -1
 gol BO1 RO1
 pos p1ai 17,5
 pos p2a 19,7
-rnbi p1a 22,6 5
-pasr p1a 20,7u 6
-run p2a 20,7 7
-hds p2a gllc 8
+pos p1 17,6
+pos p2 19,8
+rnbi p1a 22,6 7
+runi p1 22,7 -1
+pasr p1a 20,7u 8,9
+run p2a 20,7 10
+run p2 20,8 -1
+hds p2a gllc 11
 sftl gk null -1
