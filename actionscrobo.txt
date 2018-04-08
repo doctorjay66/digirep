@@ -1,0 +1,7 @@
+gol CRO1 BO0
+pos p1i 14,14
+pos p2 16,5
+crsri p1 19,5 2
+run p2 19,5 3
+rnsl p2 gllc 4
+sftl gk null -1
